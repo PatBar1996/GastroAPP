@@ -1,7 +1,6 @@
 from libraries import tk
+import os
 from administration_panel import view_administration_panel
-from dotenv import load_dotenv
-load_dotenv() #loading API_key from .env
 
 ##PANEL GŁÓWNY APP
 root = tk.Tk()
