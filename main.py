@@ -1,6 +1,6 @@
 from libraries import tk
 import os
-from administration_panel import view_administration_panel
+from administration_panel_gui import view_administration_panel
 
 ##PANEL GŁÓWNY APP
 root = tk.Tk()
