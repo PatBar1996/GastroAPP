@@ -4,6 +4,8 @@ import requests
 import tkinter as tk
 import tkinter.messagebox as messagebox
 from administration_panel_gui import *
+from datetime import datetime
+#from new_order_gui import *
 
 load_dotenv() #loading API_key from .env
 api_key = os.getenv("API_KEY")
@@ -26,6 +28,24 @@ class MenuPositions:
     def __repr__(self):
         return f"<MenuPosition id={self.id} name={self.position_name} type={self.position_type} price={self.position_price}>"
 
+
+class Orders:
+    def __init__(self, order_id, order_time, order_content, order_price):
+        self.order_id = order_id
+        self.order_time = order_time
+        self.order_content = order_content
+        self.order_price = order_price
+
+
+    def __repr__(self):
+        return f"<Order id={self.order_id} time={self.order_time} content={self.order_content} price={self.order_price}>"
+
+    def __str__(self):
+        return f"Zamówienie [{self.order_id}]\n[{self.order_time}]\n{self.order_content}\nKwota zamówienia: {self.order_price} zł"
+
+    def format_order_content(self):
+        print(self.order_content[0])
+
 def update_menu_label(menu_label):
     menu_items = load_menu_content()
     formatted_text = format_menu(menu_items)
@@ -46,15 +66,38 @@ def load_menu_content():
         print("Błąd ładowania danych: ", response.status_code, response.text)
         return []
 
+## POBIERANIE AKTUALNYCH ZAMÓWIEŃ Z SUPABASE
+def load_orders():
+    response = requests.get(f"{api_url}/rest/v1/orders?select=*&order=order_id.asc", headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        orders_list = [Orders(**order) for order in data]
+        return orders_list
+    else:
+        print("Błąd ładowania danych: ", response.status_code, response.text)
+        return []
+
+## FORMATOWANIE ZAWARTOŚCI AKTUALNYCH ZAMÓWIEŃ
+# def format_orders(orders_list):
+#     print(orders_list)
+#     return "\n".join(f"Zamówienie [{orders_list[0].order_id}] ({orders_list[0].order_time}):\n{orders_list[0].order_content}\nKwota zamówienia: {orders_list[0].order_price} zł" for order in orders_list)
+
 ## GENERATOR ID DLA NOWEJ POZYCJI MENU (ID ostatniego elementu listy + 1)
 def generate_position_id(menu_positions):
     return menu_positions[-1].id+1
 
+## GENERATOR ID DLA NOWEJ POZYCJI ZAMÓWIENIE (ID ostatniego elementu listy + 1)
+def generate_order_id(orders_list):
+    return orders_list[-1].order_id+1
+
+##tworzenie obiektu z wiersza MenuPositions
 def get_object(object_id):
     response = requests.get(f"{api_url}/rest/v1/menu_positions?id=eq.{object_id}", headers=headers)
     data = response.json()
     object = MenuPositions(**data[0]) ##tworzenie obiektu z elementu [0] listy
     return object
+
+
 
 
 ## WYSYŁKA NOWEJ POZYCJI
@@ -114,6 +157,21 @@ def update_position(updated_menu_position, menu_label,edit_window):
 
     except ValueError:
         tk.messagebox.Message(parent=edit_window,title="BŁĄD", message="Błąd danych2").show()
+
+def create_order(new_order_objects, order_content_listbox, new_order_id):
+    order_content = []
+    for object in new_order_objects:
+        order_content.append(object.position_name)
+    data = {
+        "order_id": new_order_id,
+        "order_time": datetime.now(),
+        "order_content": order_content,
+        "order_price": order_price
+
+    }
+    response = requests.post(f"{api_url}/rest/v1/orders", json=xxx, headers=headers)
+
+
 
 
 

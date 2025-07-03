@@ -32,6 +32,8 @@ def view_administration_panel():
     ##TEXT Podaj ID (dla usuń/edytuj)
     position_id_text = tk.Label(administration_panel, text="Podaj ID (dla usuń/edytuj)")
     position_id_text.pack()
+    ##BUTTON Wróć do menu
+    back_button = tk.Button(administration_panel,text="Wróć do menu", command=administration_panel.destroy).pack()
 
 def update_menu_label():
     menu_items = load_menu_content()
